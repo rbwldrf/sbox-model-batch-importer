@@ -9,11 +9,11 @@ typedef unsigned char u8;
 typedef unsigned short u16;
 typedef unsigned int u32;
 #ifdef _WIN32
-	typedef long long i64;
-	typedef unsigned long long u64;
+typedef long long i64;
+typedef unsigned long long u64;
 #else
-	typedef long i64;
-	typedef unsigned long u64;
+typedef long i64;
+typedef unsigned long u64;
 #endif
 
 static_assert(sizeof(u8) == 1, "u8 is not 1 byte");
@@ -57,33 +57,63 @@ constexpr LoadFlags& operator|=(LoadFlags& lhs, LoadFlags rhs)
 	return lhs = lhs | rhs;
 }
 
-struct DVec2 { double x, y; };
-struct DVec3 { double x, y, z; };
-struct DVec4 { double x, y, z, w; };
-struct DMatrix { double m[16]; /* last 4 are translation */ };
-struct DQuat{ double x, y, z, w; };
+struct DVec2
+{
+	double x, y;
+};
+struct DVec3
+{
+	double x, y, z;
+};
+struct DVec4
+{
+	double x, y, z, w;
+};
+struct DMatrix
+{
+	double m[16]; /* last 4 are translation */
+};
+struct DQuat
+{
+	double x, y, z, w;
+};
 
-struct FVec2 { float x, y; };
-struct FVec3 { float x, y, z; };
-struct FVec4 { float x, y, z, w; };
-struct FMatrix { float m[16]; };
-struct FQuat{ float x, y, z, w; };
+struct FVec2
+{
+	float x, y;
+};
+struct FVec3
+{
+	float x, y, z;
+};
+struct FVec4
+{
+	float x, y, z, w;
+};
+struct FMatrix
+{
+	float m[16];
+};
+struct FQuat
+{
+	float x, y, z, w;
+};
 
 #define OFBX_SINGLE_PRECISION
 #ifdef OFBX_SINGLE_PRECISION
-	// use floats for vertices, normals, uvs, ...
-	using Vec2 = FVec2;
-	using Vec3 = FVec3;
-	using Vec4 = FVec4;
-	using Matrix = FMatrix;
-	using Quat = FQuat;
+// use floats for vertices, normals, uvs, ...
+using Vec2 = FVec2;
+using Vec3 = FVec3;
+using Vec4 = FVec4;
+using Matrix = FMatrix;
+using Quat = FQuat;
 #else
-	// use doubles for vertices, normals, uvs, ...
-	using Vec2 = DVec2;
-	using Vec3 = DVec3;
-	using Vec4 = DVec4;
-	using Matrix = DMatrix;
-	using Quat = DQuat;
+// use doubles for vertices, normals, uvs, ...
+using Vec2 = DVec2;
+using Vec3 = DVec3;
+using Vec4 = DVec4;
+using Matrix = DMatrix;
+using Quat = DQuat;
 #endif
 
 struct Color
@@ -109,8 +139,7 @@ struct DataView
 	double toDouble() const;
 	float toFloat() const;
 
-	template <int N>
-	void toString(char(&out)[N]) const
+	template <int N> void toString(char (&out)[N]) const
 	{
 		char* cout = out;
 		const u8* cin = begin;
@@ -156,7 +185,7 @@ struct IElementProperty
 
 struct IElement
 {
-    virtual ~IElement() = default;
+	virtual ~IElement() = default;
 	virtual IElement* getFirstChild() const = 0;
 	virtual IElement* getSibling() const = 0;
 	virtual DataView getID() const = 0;
@@ -255,7 +284,8 @@ protected:
 };
 
 
-struct Pose : Object {
+struct Pose : Object
+{
 	static const Type s_type = Type::POSE;
 	Pose(const Scene& _scene, const IElement& _element);
 
@@ -271,10 +301,10 @@ struct Texture : Object
 		DIFFUSE,
 		NORMAL,
 		SPECULAR,
-        SHININESS,
-        AMBIENT,
-        EMISSIVE,
-        REFLECTION,
+		SHININESS,
+		AMBIENT,
+		EMISSIVE,
+		REFLECTION,
 		COUNT
 	};
 
@@ -413,18 +443,18 @@ struct Material : Object
 
 	virtual Color getDiffuseColor() const = 0;
 	virtual Color getSpecularColor() const = 0;
-    virtual Color getReflectionColor() const = 0;
-    virtual Color getAmbientColor() const = 0;
-    virtual Color getEmissiveColor() const = 0;
+	virtual Color getReflectionColor() const = 0;
+	virtual Color getAmbientColor() const = 0;
+	virtual Color getEmissiveColor() const = 0;
 
-    virtual double getDiffuseFactor() const = 0;
-    virtual double getSpecularFactor() const = 0;
-    virtual double getReflectionFactor() const = 0;
-    virtual double getShininess() const = 0;
-    virtual double getShininessExponent() const = 0;
-    virtual double getAmbientFactor() const = 0;
-    virtual double getBumpFactor() const = 0;
-    virtual double getEmissiveFactor() const = 0;
+	virtual double getDiffuseFactor() const = 0;
+	virtual double getSpecularFactor() const = 0;
+	virtual double getReflectionFactor() const = 0;
+	virtual double getShininess() const = 0;
+	virtual double getShininessExponent() const = 0;
+	virtual double getAmbientFactor() const = 0;
+	virtual double getBumpFactor() const = 0;
+	virtual double getEmissiveFactor() const = 0;
 
 	virtual const Texture* getTexture(Texture::TextureType type) const = 0;
 };
@@ -490,7 +520,8 @@ struct NodeAttribute : Object
 };
 
 
-struct Vec2Attributes {
+struct Vec2Attributes
+{
 	const Vec2* values = nullptr;
 	const int* indices = nullptr;
 	int count = 0;
@@ -498,7 +529,8 @@ struct Vec2Attributes {
 	Vec2 get(int i) const { return indices ? values[indices[i]] : values[i]; }
 };
 
-struct Vec3Attributes {
+struct Vec3Attributes
+{
 	const Vec3* values = nullptr;
 	const int* indices = nullptr;
 	int count = 0;
@@ -507,7 +539,8 @@ struct Vec3Attributes {
 	Vec3 get(int i) const { return indices ? values[indices[i]] : values[i]; }
 };
 
-struct Vec4Attributes {
+struct Vec4Attributes
+{
 	const Vec4* values = nullptr;
 	const int* indices = nullptr;
 	int count = 0;
@@ -516,20 +549,23 @@ struct Vec4Attributes {
 };
 
 // subset of polygons with same material
-struct GeometryPartition {
-	struct Polygon {
+struct GeometryPartition
+{
+	struct Polygon
+	{
 		const int from_vertex; // index into VecNAttributes::indices
 		const int vertex_count;
 	};
 	const Polygon* polygons;
 	const int polygon_count;
 	const int max_polygon_triangles; // max triangles in single polygon, can be used for preallocation
-	const int triangles_count; // number of triangles after polygon triangulation, can be used for preallocation
+	const int triangles_count;		 // number of triangles after polygon triangulation, can be used for preallocation
 };
 
-struct GeometryData {
+struct GeometryData
+{
 	virtual ~GeometryData() {}
-	
+
 	virtual Vec3Attributes getPositions() const = 0;
 	virtual Vec3Attributes getNormals() const = 0;
 	virtual Vec2Attributes getUVs(int index = 0) const = 0;
@@ -540,7 +576,8 @@ struct GeometryData {
 };
 
 
-struct Geometry : Object {
+struct Geometry : Object
+{
 	static const Type s_type = Type::GEOMETRY;
 	static const int s_uvs_max = 4;
 
@@ -568,7 +605,8 @@ struct Shape : Object
 };
 
 
-struct Mesh : Object {
+struct Mesh : Object
+{
 	static const Type s_type = Type::MESH;
 
 	Mesh(const Scene& _scene, const IElement& _element);
@@ -624,7 +662,7 @@ struct AnimationCurveNode : Object
 	AnimationCurveNode(const Scene& _scene, const IElement& _element);
 
 	virtual DataView getBoneLinkProperty() const = 0;
-	virtual const AnimationCurve* getCurve(int idx) const = 0; 
+	virtual const AnimationCurve* getCurve(int idx) const = 0;
 	virtual DVec3 getNodeLocalTransform(double time) const = 0;
 	virtual const Object* getBone() const = 0;
 };
@@ -685,7 +723,7 @@ struct GlobalSettings
 	int UpAxisSign = 1;
 	// this seems to be 1-2 in Autodesk (odd/even parity), and 0-2 in Blender (axis as in UpAxis)
 	// I recommend to ignore FrontAxis and use just UpVector
-	int FrontAxis = 1; 
+	int FrontAxis = 1;
 	int FrontAxisSign = 1;
 	CoordSystem CoordAxis = CoordSystem_RightHanded;
 	int CoordAxisSign = 1;
@@ -745,7 +783,7 @@ struct IScene
 	virtual float getSceneFrameRate() const = 0;
 	virtual const GlobalSettings* getGlobalSettings() const = 0;
 
-protected:
+	// protected:
 	virtual ~IScene() {}
 };
 
@@ -756,15 +794,18 @@ double fbxTimeToSeconds(i64 value);
 i64 secondsToFbxTime(double value);
 
 // TODO nonconvex
-inline u32 triangulate(const GeometryData& geom, const GeometryPartition::Polygon& polygon, int* tri_indices) {
+inline u32 triangulate(const GeometryData& geom, const GeometryPartition::Polygon& polygon, int* tri_indices)
+{
 	if (polygon.vertex_count < 3) return 0;
-	if (polygon.vertex_count == 3) {
+	if (polygon.vertex_count == 3)
+	{
 		tri_indices[0] = polygon.from_vertex;
 		tri_indices[1] = polygon.from_vertex + 1;
 		tri_indices[2] = polygon.from_vertex + 2;
 		return 3;
 	}
-	else if (polygon.vertex_count == 4) {
+	else if (polygon.vertex_count == 4)
+	{
 		tri_indices[0] = polygon.from_vertex + 0;
 		tri_indices[1] = polygon.from_vertex + 1;
 		tri_indices[2] = polygon.from_vertex + 2;
@@ -774,8 +815,9 @@ inline u32 triangulate(const GeometryData& geom, const GeometryPartition::Polygo
 		tri_indices[5] = polygon.from_vertex + 3;
 		return 6;
 	}
-	
-	for (int tri = 0; tri < polygon.vertex_count - 2; ++tri) {
+
+	for (int tri = 0; tri < polygon.vertex_count - 2; ++tri)
+	{
 		tri_indices[tri * 3 + 0] = polygon.from_vertex;
 		tri_indices[tri * 3 + 1] = polygon.from_vertex + 1 + tri;
 		tri_indices[tri * 3 + 2] = polygon.from_vertex + 2 + tri;

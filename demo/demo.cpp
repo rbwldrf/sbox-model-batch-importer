@@ -1,19 +1,20 @@
 #include "../src/ofbx.h"
 #include "imgui.h"
-#include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
 #include <d3d11.h>
-#include <tchar.h>
-#include <stdio.h>
 #include <inttypes.h>
+#include <stdio.h>
+#include <string>
+#include <tchar.h>
 #include <vector>
+
 
 ofbx::IScene* g_scene = nullptr;
 const ofbx::IElement* g_selected_element = nullptr;
 const ofbx::Object* g_selected_object = nullptr;
 
-template <int N>
-void catProperty(char(&out)[N], const ofbx::IElementProperty& prop)
+template <int N> void catProperty(char (&out)[N], const ofbx::IElementProperty& prop)
 {
 	char tmp[127];
 	switch (prop.getType())
@@ -27,8 +28,10 @@ void catProperty(char(&out)[N], const ofbx::IElementProperty& prop)
 	strcat_s(out, tmp);
 }
 
-void gui(const ofbx::IElement& parent) {
-	for (const ofbx::IElement* element = parent.getFirstChild(); element; element = element->getSibling()) {
+void gui(const ofbx::IElement& parent)
+{
+	for (const ofbx::IElement* element = parent.getFirstChild(); element; element = element->getSibling())
+	{
 		auto id = element->getID();
 		char label[1024];
 		id.toString(label);
@@ -37,8 +40,7 @@ void gui(const ofbx::IElement& parent) {
 		bool first = true;
 		while (prop)
 		{
-			if (!first)
-				strcat_s(label, ", ");
+			if (!first) strcat_s(label, ", ");
 			first = false;
 			catProperty(label, *prop);
 			prop = prop->getNext();
@@ -48,7 +50,8 @@ void gui(const ofbx::IElement& parent) {
 		ImGui::PushID((const void*)id.begin);
 		ImGuiTreeNodeFlags flags = g_selected_element == element ? ImGuiTreeNodeFlags_Selected : 0;
 		if (!element->getFirstChild()) flags |= ImGuiTreeNodeFlags_Leaf;
-		if (ImGui::TreeNodeEx(label, flags)) {
+		if (ImGui::TreeNodeEx(label, flags))
+		{
 			if (ImGui::IsItemHovered() && ImGui::IsMouseClicked(0)) g_selected_element = element;
 			if (element->getFirstChild()) gui(*element);
 			ImGui::TreePop();
@@ -61,8 +64,7 @@ void gui(const ofbx::IElement& parent) {
 	}
 }
 
-template <int N>
-void toString(ofbx::DataView view, char (&out)[N])
+template <int N> void toString(ofbx::DataView view, char (&out)[N])
 {
 	int len = int(view.end - view.begin);
 	if (len > sizeof(out) - 1) len = sizeof(out) - 1;
@@ -70,8 +72,7 @@ void toString(ofbx::DataView view, char (&out)[N])
 	out[len] = 0;
 }
 
-template <typename T>
-void showArray(const char* label, const char* format, ofbx::IElementProperty& prop)
+template <typename T> void showArray(const char* label, const char* format, ofbx::IElementProperty& prop)
 {
 	if (!ImGui::CollapsingHeader(label)) return;
 
@@ -105,25 +106,24 @@ void gui(ofbx::IElementProperty& prop)
 			toString(prop.getValue(), tmp);
 			ImGui::Text("String: %s", tmp);
 			break;
-		default:
-			ImGui::Text("Other: %c", (char)prop.getType());
-			break;
+		default: ImGui::Text("Other: %c", (char)prop.getType()); break;
 	}
 
 	ImGui::PopID();
 	if (prop.getNext()) gui(*prop.getNext());
 }
 
-static void guiCurve(const ofbx::Object& object) {
-    const ofbx::AnimationCurve& curve = static_cast<const ofbx::AnimationCurve&>(object);
-    
-    const int c = curve.getKeyCount();
-    for (int i = 0; i < c; ++i) {
-        const float t = (float)ofbx::fbxTimeToSeconds(curve.getKeyTime()[i]);
-        const float v = curve.getKeyValue()[i];
-        ImGui::Text("%fs: %f ", t, v);
-        
-    }
+static void guiCurve(const ofbx::Object& object)
+{
+	const ofbx::AnimationCurve& curve = static_cast<const ofbx::AnimationCurve&>(object);
+
+	const int c = curve.getKeyCount();
+	for (int i = 0; i < c; ++i)
+	{
+		const float t = (float)ofbx::fbxTimeToSeconds(curve.getKeyTime()[i]);
+		const float v = curve.getKeyValue()[i];
+		ImGui::Text("%fs: %f ", t, v);
+	}
 }
 
 void guiObjects(const ofbx::Object& object)
@@ -162,9 +162,10 @@ void guiObjects(const ofbx::Object& object)
 			guiObjects(*child);
 			++i;
 		}
-        if(object.getType() == ofbx::Object::Type::ANIMATION_CURVE) {
-            guiCurve(object);
-        }
+		if (object.getType() == ofbx::Object::Type::ANIMATION_CURVE)
+		{
+			guiCurve(object);
+		}
 
 		ImGui::TreePop();
 	}
@@ -195,8 +196,10 @@ void guiObjects(const ofbx::IScene& scene)
 }
 
 
-void demoGUI() {
-	if (ImGui::Begin("Elements")) {
+void demoGUI()
+{
+	if (ImGui::Begin("Elements"))
+	{
 		const ofbx::IElement* root = g_scene->getRootElement();
 		if (root && root->getFirstChild()) gui(*root);
 	}
@@ -218,9 +221,10 @@ bool saveAsOBJ(ofbx::IScene& scene, const char* path)
 	if (!fp) return false;
 	int indices_offset = 0;
 	int mesh_count = scene.getMeshCount();
-	
+
 	// output unindexed geometry
-	for (int mesh_idx = 0; mesh_idx < mesh_count; ++mesh_idx) {
+	for (int mesh_idx = 0; mesh_idx < mesh_count; ++mesh_idx)
+	{
 		const ofbx::Mesh& mesh = *scene.getMesh(mesh_idx);
 		const ofbx::GeometryData& geom = mesh.getGeometryData();
 		const ofbx::Vec3Attributes positions = geom.getPositions();
@@ -228,42 +232,52 @@ bool saveAsOBJ(ofbx::IScene& scene, const char* path)
 		const ofbx::Vec2Attributes uvs = geom.getUVs();
 
 		// each ofbx::Mesh can have several materials == partitions
-		for (int partition_idx = 0; partition_idx < geom.getPartitionCount(); ++partition_idx) {
+		for (int partition_idx = 0; partition_idx < geom.getPartitionCount(); ++partition_idx)
+		{
 			fprintf(fp, "o obj%d_%d\ng grp%d\n", mesh_idx, partition_idx, mesh_idx);
 			const ofbx::GeometryPartition& partition = geom.getPartition(partition_idx);
-		
-			// partitions most likely have several polygons, they are not triangles necessarily, use ofbx::triangulate if you want triangles
-			for (int polygon_idx = 0; polygon_idx < partition.polygon_count; ++polygon_idx) {
+
+			// partitions most likely have several polygons, they are not triangles necessarily, use ofbx::triangulate
+			// if you want triangles
+			for (int polygon_idx = 0; polygon_idx < partition.polygon_count; ++polygon_idx)
+			{
 				const ofbx::GeometryPartition::Polygon& polygon = partition.polygons[polygon_idx];
-				
-				for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i) {
+
+				for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i)
+				{
 					ofbx::Vec3 v = positions.get(i);
 					fprintf(fp, "v %f %f %f\n", v.x, v.y, v.z);
 				}
 
 				bool has_normals = normals.values != nullptr;
-				if (has_normals) {
+				if (has_normals)
+				{
 					// normals.indices might be different than positions.indices
 					// but normals.get(i) is normal for positions.get(i)
-					for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i) {
+					for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i)
+					{
 						ofbx::Vec3 n = normals.get(i);
 						fprintf(fp, "vn %f %f %f\n", n.x, n.y, n.z);
 					}
 				}
 
 				bool has_uvs = uvs.values != nullptr;
-				if (has_uvs) {
-					for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i) {
+				if (has_uvs)
+				{
+					for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i)
+					{
 						ofbx::Vec2 uv = uvs.get(i);
 						fprintf(fp, "vt %f %f\n", uv.x, uv.y);
 					}
 				}
 			}
 
-			for (int polygon_idx = 0; polygon_idx < partition.polygon_count; ++polygon_idx) {
+			for (int polygon_idx = 0; polygon_idx < partition.polygon_count; ++polygon_idx)
+			{
 				const ofbx::GeometryPartition::Polygon& polygon = partition.polygons[polygon_idx];
 				fputs("f ", fp);
-				for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i) {
+				for (int i = polygon.from_vertex; i < polygon.from_vertex + polygon.vertex_count; ++i)
+				{
 					fprintf(fp, "%d ", 1 + i + indices_offset);
 				}
 				fputs("\n", fp);
@@ -276,8 +290,52 @@ bool saveAsOBJ(ofbx::IScene& scene, const char* path)
 	return true;
 }
 
+ofbx::IScene* loadModel(std::string filepath)
+{
+	static char s_TimeString[256];
+	FILE* the_file = fopen(filepath.data(), "rb");
 
-bool initOpenFBX(const char* filepath, HWND hwnd) {
+	if (!the_file)
+	{
+		OutputDebugString("file not found");
+	}
+
+	fseek(the_file, 0, SEEK_END);
+	long the_file_size = ftell(the_file);
+	fseek(the_file, 0, SEEK_SET);
+	auto* the_content = new ofbx::u8[the_file_size];
+	fread(the_content, 1, the_file_size, the_file);
+
+	// Ignoring certain nodes will only stop them from being processed not tokenised (i.e. they will still be in the
+	// tree)
+	ofbx::LoadFlags the_flags =
+		//		ofbx::LoadFlags::IGNORE_MODELS |
+		ofbx::LoadFlags::IGNORE_BLEND_SHAPES | ofbx::LoadFlags::IGNORE_CAMERAS | ofbx::LoadFlags::IGNORE_LIGHTS |
+		//		ofbx::LoadFlags::IGNORE_TEXTURES |
+		ofbx::LoadFlags::IGNORE_SKIN | ofbx::LoadFlags::IGNORE_BONES | ofbx::LoadFlags::IGNORE_PIVOTS |
+		//		ofbx::LoadFlags::IGNORE_MATERIALS |
+		ofbx::LoadFlags::IGNORE_POSES | ofbx::LoadFlags::IGNORE_VIDEOS | ofbx::LoadFlags::IGNORE_LIMBS |
+		//		ofbx::LoadFlags::IGNORE_MESHES |
+		ofbx::LoadFlags::IGNORE_ANIMATIONS;
+
+	ofbx::IScene* the_scene = ofbx::load((ofbx::u8*)the_content, the_file_size, (ofbx::u16)the_flags);
+
+	if (!the_scene)
+	{
+		OutputDebugString(ofbx::getError());
+	}
+	else
+	{
+		// saveAsOBJ(*g_scene, "out.obj");
+	}
+	delete[] the_content;
+	fclose(the_file);
+	return the_scene;
+}
+
+
+bool initOpenFBX(const char* filepath, HWND hwnd)
+{
 	static char s_TimeString[256];
 	FILE* fp = fopen(filepath, "rb");
 
@@ -295,21 +353,16 @@ bool initOpenFBX(const char* filepath, HWND hwnd) {
 	LARGE_INTEGER start;
 	QueryPerformanceCounter(&start);
 
-	// Ignoring certain nodes will only stop them from being processed not tokenised (i.e. they will still be in the tree)
+	// Ignoring certain nodes will only stop them from being processed not tokenised (i.e. they will still be in the
+	// tree)
 	ofbx::LoadFlags flags =
-//		ofbx::LoadFlags::IGNORE_MODELS |
-		ofbx::LoadFlags::IGNORE_BLEND_SHAPES |
-		ofbx::LoadFlags::IGNORE_CAMERAS |
-		ofbx::LoadFlags::IGNORE_LIGHTS |
-//		ofbx::LoadFlags::IGNORE_TEXTURES |
-		ofbx::LoadFlags::IGNORE_SKIN |
-		ofbx::LoadFlags::IGNORE_BONES |
-		ofbx::LoadFlags::IGNORE_PIVOTS |
-//		ofbx::LoadFlags::IGNORE_MATERIALS |
-		ofbx::LoadFlags::IGNORE_POSES |
-		ofbx::LoadFlags::IGNORE_VIDEOS |
-		ofbx::LoadFlags::IGNORE_LIMBS |
-//		ofbx::LoadFlags::IGNORE_MESHES |
+		//		ofbx::LoadFlags::IGNORE_MODELS |
+		ofbx::LoadFlags::IGNORE_BLEND_SHAPES | ofbx::LoadFlags::IGNORE_CAMERAS | ofbx::LoadFlags::IGNORE_LIGHTS |
+		//		ofbx::LoadFlags::IGNORE_TEXTURES |
+		ofbx::LoadFlags::IGNORE_SKIN | ofbx::LoadFlags::IGNORE_BONES | ofbx::LoadFlags::IGNORE_PIVOTS |
+		//		ofbx::LoadFlags::IGNORE_MATERIALS |
+		ofbx::LoadFlags::IGNORE_POSES | ofbx::LoadFlags::IGNORE_VIDEOS | ofbx::LoadFlags::IGNORE_LIMBS |
+		//		ofbx::LoadFlags::IGNORE_MESHES |
 		ofbx::LoadFlags::IGNORE_ANIMATIONS;
 
 	g_scene = ofbx::load((ofbx::u8*)content, file_size, (ofbx::u16)flags);
@@ -319,21 +372,23 @@ bool initOpenFBX(const char* filepath, HWND hwnd) {
 	QueryPerformanceCounter(&stop);
 	double elapsed = (double)(stop.QuadPart - start.QuadPart) / (double)frequency.QuadPart;
 	snprintf(s_TimeString,
-    sizeof(s_TimeString),
-    "Loading took %f seconds (%.0f ms) to load %s file of size %d bytes (%f MB) \r ",
-    elapsed,
-    elapsed * 1000.0,
-    filepath,
-    file_size,
-    (double)file_size / (1024.0 * 1024.0));
+		sizeof(s_TimeString),
+		"Loading took %f seconds (%.0f ms) to load %s file of size %d bytes (%f MB) \r ",
+		elapsed,
+		elapsed * 1000.0,
+		filepath,
+		file_size,
+		(double)file_size / (1024.0 * 1024.0));
 
 
-	if(!g_scene) {
-        OutputDebugString(ofbx::getError());
-    }
-    else {
-        //saveAsOBJ(*g_scene, "out.obj");
-    }
+	if (!g_scene)
+	{
+		OutputDebugString(ofbx::getError());
+	}
+	else
+	{
+		// saveAsOBJ(*g_scene, "out.obj");
+	}
 	delete[] content;
 	fclose(fp);
 	saveAsOBJ(*g_scene, "out.obj");
